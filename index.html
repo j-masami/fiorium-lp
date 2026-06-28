@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fiorium箸 体験サロン</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+      background: #faf7f4;
+      color: #2c2c2a;
+      line-height: 1.7;
+    }
+
+    /* ── ヒーロー スライドショー ── */
+    .hero {
+      position: relative;
+      height: 520px;
+      text-align: center;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-slides {
+      position: absolute;
+      inset: 0;
+    }
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+    .hero-slide.active { opacity: 1; }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.38);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 16px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      letter-spacing: 0.05em;
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    .hero h1 {
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: 500;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 32px;
+    }
+    .cta-btn {
+      display: inline-block;
+      background: #D85A30;
+      color: #fff;
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+    .cta-btn:hover { background: #993c1d; }
+    .hero-note { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 14px; }
+    .slide-dots {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 3;
+    }
+    .slide-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.4);
+      transition: background 0.3s;
+    }
+    .slide-dot.active { background: #fff; }
+
+    /* ── セクション共通 ── */
+    .section {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .section + .section { padding-top: 0; }
+    .section-label {
+      font-size: 11px;
+      color: #993c1d;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      color: #2c2c2a;
+    }
+
+    /* ── コンセプト ── */
+    .concept-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+    .concept-photo {
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+    }
+    .concept-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .feature-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .feat {
+      background: #fdf6f0;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .feat-icon { font-size: 18px; margin-bottom: 6px; }
+    .feat h3 { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+    .feat p { font-size: 12px; color: #5f5e5a; }
+
+    /* ── ギャラリー ── */
+    .gallery-bg { background: #fff; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .gallery-item { border-radius: 8px; overflow: hidden; }
+    .gallery-item img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-label {
+      font-size: 11px;
+      color: #993c1d;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    /* ── レッスンの流れ ── */
+    .flow-list { list-style: none; }
+    .flow-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 0.5px solid #e0ddd8;
+    }
+    .flow-item:last-child { border-bottom: none; }
+    .flow-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #f5c4b3;
+      color: #712b13;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .flow-item h3 { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .flow-item p { font-size: 13px; color: #5f5e5a; }
+
+    /* ── 料金 ── */
+    .price-bg { background: #fdf6f0; }
+    .price-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .price-card {
+      background: #fff;
+      border: 0.5px solid #e0ddd8;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .price-card.featured { border: 2px solid #D85A30; }
+    .price-badge {
+      display: inline-block;
+      background: #D85A30;
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 12px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+    }
+    .price-name { font-size: 13px; color: #5f5e5a; margin-bottom: 6px; }
+    .price-amount { font-size: 26px; font-weight: 500; margin-bottom: 4px; }
+    .price-note { font-size: 11px; color: #888780; }
+
+    /* ── 声 ── */
+    .voices { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .voice {
+      background: #fdf6f0;
+      border: 0.5px solid #f5c4b3;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .voice p { font-size: 14px; line-height: 1.8; font-style: italic; margin-bottom: 10px; }
+    .voice span { font-size: 12px; color: #888780; }
+
+    /* ── 最終CTA ── */
+    .final-cta {
+      background: #fdf6f0;
+      border-top: 0.5px solid #f5c4b3;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .final-cta h2 { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
+    .final-cta p { font-size: 14px; color: #5f5e5a; margin-bottom: 28px; }
+
+    /* ── フッター ── */
+    footer {
+      background: #2c2c2a;
+      color: #888780;
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+    }
+
+    /* ── レスポンシブ ── */
+    @media (max-width: 600px) {
+      .hero { height: 420px; }
+.concept-grid { grid-template-columns: 1fr; }
+      .concept-photo { order: -1; aspect-ratio: 4/3; }
+      .price-cards { grid-template-columns: 1fr; }
+      .voices { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+      .gallery-grid .gallery-item:nth-child(n+4) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ヒーロー -->
+<section class="hero">
+  <div class="hero-slides">
+    <div class="hero-slide active" style="background-image:url('Fiorium/photo1.jpg.JPG')"></div>
+    <div class="hero-slide" style="background-image:url('Fiorium/photo2.jpg.JPG')"></div>
+    <div class="hero-slide" style="background-image:url('Fiorium/photo3.jpg.JPG')"></div>
+    <div class="hero-slide" style="background-image:url('Fiorium/photo4.jpg.JPG')"></div>
+    <div class="hero-slide" style="background-image:url('Fiorium/photo5.jpg.JPG')"></div>
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <div class="badge">体験レッスン受付中</div>
+    <h1>世界にひとつだけのお箸を、<br>あなたの手で。</h1>
+    <p class="hero-sub">ハーバリウムをお箸に閉じ込める Fiorium箸®の体験サロン</p>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSf3qZn65U92Jvb1ylq67B-xPwyE1mlEmjHGEJuxWDaSwCrvyA/viewform?usp=publish-editor" target="_blank" class="cta-btn">体験レッスンを予約する</a>
+    <p class="hero-note">所要時間 約2時間 ／ 材料費込み</p>
+  </div>
+  <div class="slide-dots">
+    <div class="slide-dot active"></div>
+    <div class="slide-dot"></div>
+    <div class="slide-dot"></div>
+    <div class="slide-dot"></div>
+    <div class="slide-dot"></div>
+  </div>
+</section>
+
+<script>
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.slide-dot');
+  let current = 0;
+  setInterval(() => {
+    slides[current].classList.remove('active');
+    dots[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+    dots[current].classList.add('active');
+  }, 3000);
+</script>
+
+<!-- コンセプト -->
+<section class="section">
+  <p class="section-label">CONCEPT</p>
+  <p class="section-title">Fiorium箸とは</p>
+  <div class="concept-grid">
+    <div>
+      <p style="font-size:14px; color:#5f5e5a; margin-bottom:20px;">
+        本物のお花やドライフラワーをハーバリウムオイルとともに箸の中に封入した、唯一無二のハンドメイドアイテム。日常のお食事シーンを、特別な時間に変えてくれます。
+      </p>
+      <div class="feature-cards">
+        <div class="feat">
+          <div class="feat-icon">🌸</div>
+          <h3>本物の花を使用</h3>
+          <p>植物本来の美しさが手元に宿る</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">✨</div>
+          <h3>完全オーダーメイド</h3>
+          <p>花材・配色をカスタマイズ</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">🎁</div>
+          <h3>ギフトに最適</h3>
+          <p>記念日・お祝いに喜ばれる</p>
+        </div>
+        <div class="feat">
+          <div class="feat-icon">📜</div>
+          <h3>資格取得も可能</h3>
+          <p>認定講師コース有り</p>
+        </div>
+      </div>
+    </div>
+    <div class="concept-photo">
+      <!-- ★ お好みの1枚に変更 -->
+      <img src="Fiorium/photo2.jpg.JPG" alt="Fiorium箸の作品">
+    </div>
+  </div>
+</section>
+
+<!-- ギャラリー -->
+<div class="gallery-bg">
+  <section class="section">
+    <p class="section-label">GALLERY</p>
+    <p class="section-title">作品ギャラリー</p>
+    <div class="gallery-grid">
+      <div class="gallery-item">
+        <img src="Fiorium/photo1.jpg.JPG" alt="作品①">
+        <p class="gallery-label" style="display:none">グリーン×パープル</p>
+      </div>
+      <div class="gallery-item">
+        <img src="Fiorium/photo2.jpg.JPG" alt="作品②">
+        <p class="gallery-label" style="display:none">ピンク×パール</p>
+      </div>
+      <div class="gallery-item">
+        <img src="Fiorium/photo3.jpg.JPG" alt="作品③">
+        <p class="gallery-label" style="display:none">ブルー×ゴールド</p>
+      </div>
+      <div class="gallery-item">
+        <img src="Fiorium/photo4.jpg.JPG" alt="作品④">
+        <p class="gallery-label" style="display:none">ブルー×シルバー</p>
+      </div>
+      <div class="gallery-item">
+        <img src="Fiorium/photo5.jpg.JPG" alt="作品⑤">
+        <p class="gallery-label" style="display:none">ブルー×シルバー</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- レッスンの流れ -->
+<section class="section">
+  <p class="section-label">LESSON FLOW</p>
+  <p class="section-title">体験レッスンの流れ</p>
+  <ul class="flow-list">
+    <li class="flow-item">
+      <div class="flow-num">1</div>
+      <div>
+        <h3>デザイン相談（15分）</h3>
+        <p>使いたい花材や色のイメージをお聞きします。お任せでもOK</p>
+      </div>
+    </li>
+    <li class="flow-item">
+      <div class="flow-num">2</div>
+      <div>
+        <h3>花材選び・アレンジ（30分）</h3>
+        <p>豊富な花材から好みのものをセレクト。講師がしっかりサポートします</p>
+      </div>
+    </li>
+    <li class="flow-item">
+      <div class="flow-num">3</div>
+      <div>
+        <h3>封入・仕上げ（60分）</h3>
+        <p>ハーバリウムオイルで花材を封入。世界にひとつの箸が完成します</p>
+      </div>
+    </li>
+    <li class="flow-item">
+      <div class="flow-num">4</div>
+      <div>
+        <h3>お持ち帰り（即日）</h3>
+        <p>専用ケースに入れてその日のうちにお持ち帰りいただけます</p>
+      </div>
+    </li>
+  </ul>
+</section>
+
+<!-- 料金 -->
+<div class="price-bg">
+  <section class="section">
+    <p class="section-label">PRICE</p>
+    <p class="section-title">料金プラン</p>
+    <div class="price-cards">
+      <div class="price-card">
+        <p class="price-name">体験レッスン</p>
+        <p class="price-amount">¥6,500</p>
+        <p class="price-note">材料費・ケース込み</p>
+      </div>
+      <div class="price-card featured">
+        <p class="price-badge">人気</p>
+        <p class="price-name">ペアレッスン</p>
+        <p class="price-amount">¥11,000</p>
+        <p class="price-note">2名様 材料費・ケース込み</p>
+      </div>
+      <div class="price-card">
+        <p class="price-name">資格取得コース</p>
+        <p class="price-amount" style="font-size:18px;">要相談</p>
+        <p class="price-note">認定講師を目指す方へ</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 受講者の声 -->
+<section class="section">
+  <p class="section-label">VOICE</p>
+  <p class="section-title">受講者の声</p>
+  <div class="voices">
+    <div class="voice">
+      <p>「プレゼント用に作ったら、もらった友人が泣いてくれました。こんなに喜んでもらえるなんて思っていなかった」</p>
+      <span>30代 女性</span>
+    </div>
+    <div class="voice">
+      <p>「不器用だから無理かなと思っていたけど、丁寧に教えていただけて自分でも驚くほどきれいにできました」</p>
+      <span>40代 女性</span>
+    </div>
+  </div>
+</section>
+
+<!-- 最終CTA -->
+<div id="contact" class="final-cta">
+  <h2>まずは体験から始めませんか？</h2>
+  <p>初心者の方も、道具・材料はすべてご用意しています</p>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSf3qZn65U92Jvb1ylq67B-xPwyE1mlEmjHGEJuxWDaSwCrvyA/viewform?usp=publish-editor" target="_blank" class="cta-btn">無料でご相談・予約する</a>
+</div>
+
+<footer>
+  <p>&copy; 2025 Fiorium箸サロン. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
